@@ -1,0 +1,74 @@
+{
+  "version": "fixedseq_v1_rc1",
+  "status": "candidate",
+  "reason": "data fix completed, retrained teacher/student; pressure tests in progress",
+  "data_version": "dataverse_files_fixedseq_v1",
+  "model": {
+    "teacher_run": "/root/autodl-tmp/amp_fixedseq_runs/teacher_esm2_t30_150M_lora_fixedseq_v1",
+    "teacher_logits_dir": "/root/autodl-tmp/amp_fixedseq_logits/teacher_esm2_t30_150M_lora_fixedseq_v1",
+    "student_run": "/root/autodl-tmp/amp_fixedseq_runs/student35m_distill_sampler_subpos_a2_ls03_pw20_fixedseq_v1",
+    "student_best_ckpt": "/root/autodl-tmp/amp_fixedseq_runs/student35m_distill_sampler_subpos_a2_ls03_pw20_fixedseq_v1/best",
+    "student_base_model_dir": "/root/work_runtime/models/esm2_t12_35M_UR50D",
+    "teacher_base_model_dir": "/root/autodl-tmp/models/esm2_t30_150M_UR50D"
+  },
+  "artifacts": {
+    "bench_dir": "/root/autodl-tmp/amp_fixedseq_runs/bench_fixedseq_v1",
+    "pred_dir": "/root/autodl-tmp/amp_fixedseq_runs/predictions_fixedseq_v1",
+    "profile_dir": "/root/autodl-tmp/amp_fixedseq_runs/profile_fixedseq_v1",
+    "nsys_report": "/root/autodl-tmp/amp_fixedseq_runs/nsys/test_fast_fp16_bs128_sort1_fixedseq_v1.nsys-rep",
+    "figures_dir": "/root/work/2026_AMP_git_https/runs/figures_cloud_only_full_fixedseq_v1",
+    "stress_tests_dir": "/root/autodl-tmp/amp_fixedseq_runs/stress_tests_fixedseq_v1"
+  },
+  "metrics": {
+    "val": {
+      "any": {
+        "pr_auc": 0.9570650765076623,
+        "roc_auc": 0.9820945426305833,
+        "best_mcc": 0.8590853722078293,
+        "best_thr": 0.5499999999999999,
+        "mcc@0.5": 0.8586362252327644,
+        "f1@best_thr": 0.8946866809625923
+      },
+      "Antibacterial": {
+        "pr_auc": 0.9351024991987921
+      },
+      "Antifungal": {
+        "pr_auc": 0.5963491888445596
+      },
+      "Antiviral": {
+        "pr_auc": 0.6934105281480881
+      },
+      "Antiparasitic": {
+        "pr_auc": 0.1334624996205015
+      },
+      "macro_pr_subheads": 0.5895811789529853
+    },
+    "test": {
+      "any": {
+        "pr_auc": 0.9569767603379016,
+        "roc_auc": 0.9825922152687439,
+        "best_mcc": 0.8638323698005764,
+        "best_thr": 0.55,
+        "mcc@0.5": 0.865386333383315,
+        "f1@best_thr": 0.8974793989335919
+      },
+      "Antibacterial": {
+        "pr_auc": 0.9320891005471774
+      },
+      "Antifungal": {
+        "pr_auc": 0.5911028423936969
+      },
+      "Antiviral": {
+        "pr_auc": 0.7060634010200108
+      },
+      "Antiparasitic": {
+        "pr_auc": 0.17018810831325876
+      },
+      "macro_pr_subheads": 0.599860863068536
+    }
+  },
+  "notes": [
+    "legacy_badseq models are deprecated due to empty Sequence issue in old split CSVs",
+    "near-duplicate stress test started; final tag should be promoted after full stress tests"
+  ]
+}

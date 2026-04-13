@@ -1,0 +1,9 @@
+runs/
+PLM_outcome/
+shijie_outcome/
+*.pt
+*.ckpt
+*.bin
+*.parquet
+*.tar.gz
+*.csv

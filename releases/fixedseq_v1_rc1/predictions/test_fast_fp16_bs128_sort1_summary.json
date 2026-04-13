@@ -1,0 +1,29 @@
+{
+  "input_csv": "/root/work_runtime/data/dataverse_files_fixedseq_v1/Test.csv",
+  "pred_out": "/root/autodl-tmp/amp_fixedseq_runs/predictions_fixedseq_v1/test_fast_fp16_bs128_sort1.csv",
+  "chunks_dir": "/root/autodl-tmp/amp_fixedseq_runs/predictions_fixedseq_v1/test_fast_fp16_bs128_sort1.csv.chunks",
+  "num_chunks_merged": 1,
+  "total_rows": 16489,
+  "total_infer_sec": 5.5074657197110355,
+  "total_wall_sec": 6.5438691969029605,
+  "rows_per_sec_infer": 2993.93602051601,
+  "rows_per_sec_wall": 2519.7630795865857,
+  "config": {
+    "batch_size": 128,
+    "num_workers": 4,
+    "amp": "fp16",
+    "sort_by_len": true,
+    "chunk_size": 50000,
+    "max_len": 256,
+    "device": "cuda"
+  },
+  "chunks": [
+    {
+      "chunk_idx": 0,
+      "skipped": false,
+      "rows": 16489,
+      "infer_sec": 5.5074657197110355,
+      "rows_per_sec_infer": 2993.93602051601
+    }
+  ]
+}

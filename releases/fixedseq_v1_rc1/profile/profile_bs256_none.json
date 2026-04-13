@@ -1,0 +1,41 @@
+{
+  "config": {
+    "csv": "Fold2.csv",
+    "batch_size": 256,
+    "num_workers": 4,
+    "max_len": 256,
+    "amp": "none",
+    "warmup_batches": 5,
+    "limit_batches": 0,
+    "device": "cuda"
+  },
+  "dataset_rows": 32922,
+  "timing_sec": {
+    "dataset_init": 0.05494501627981663,
+    "dataloader_build": 0.0017088977620005608,
+    "model_load_and_to_device": 0.846927662845701,
+    "loop_total": 37.493545063305646,
+    "fetch_collate_wait": 0.21400158572942019,
+    "h2d_copy": 0.0149265150539577,
+    "forward": 37.1904524685815,
+    "postprocess_cpu": 0.021271192003041506,
+    "end_to_end_total": 40.85284017305821
+  },
+  "counts": {
+    "steps": 129,
+    "samples": 32922
+  },
+  "throughput": {
+    "samples_per_sec_loop": 878.0711438305751,
+    "steps_per_sec_loop": 3.4405922348017794,
+    "samples_per_sec_forward_only": 885.2271971633718
+  },
+  "batch_shape_stats": {
+    "avg_effective_tokens_per_sample": 85.00713808395602,
+    "avg_padded_len_per_sample": 240.4759127635016,
+    "padding_efficiency": 0.35349543788843885
+  },
+  "gpu": {
+    "peak_memory_allocated_mb": 3496.1142578125
+  }
+}

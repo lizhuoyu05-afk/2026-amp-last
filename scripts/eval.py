@@ -1,0 +1,116 @@
+from __future__ import annotations
+
+import argparse
+import os
+import json
+import numpy as np
+import pandas as pd
+import torch
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
+from src.data import EscapeCSVDataset, Collator, load_tokenizer, LABEL_COLS
+from src.modeling import LABEL_NAMES, load_model_for_inference
+
+def metrics_from_probs(y, p, thr_from="self", fixed_thr=0.5):
+    from sklearn.metrics import average_precision_score, roc_auc_score, matthews_corrcoef, f1_score, precision_recall_curve
+    out = {}
+    out["pr_auc"] = float(average_precision_score(y, p))
+    out["roc_auc"] = float(roc_auc_score(y, p))
+    # threshold selection
+    if thr_from == "fixed":
+        thr = fixed_thr
+        out["best_mcc"] = float(matthews_corrcoef(y, (p>=thr).astype(int)))
+        out["best_thr"] = float(thr)
+    else:
+        best = {"mcc": -1, "thr": 0.5}
+        for thr in np.linspace(0.05, 0.95, 19):
+            pred = (p >= thr).astype(int)
+            mcc = matthews_corrcoef(y, pred)
+            if mcc > best["mcc"]:
+                best = {"mcc": float(mcc), "thr": float(thr)}
+        out["best_mcc"] = best["mcc"]
+        out["best_thr"] = best["thr"]
+        thr = best["thr"]
+    out["mcc@0.5"] = float(matthews_corrcoef(y, (p>=0.5).astype(int)))
+    out["f1@best_thr"] = float(f1_score(y, (p>=thr).astype(int)))
+
+    return out
+
+@torch.no_grad()
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--ckpt_dir", required=True)
+    ap.add_argument("--data_dir", required=True)
+    ap.add_argument("--csv", required=True)
+    ap.add_argument("--out", required=True, help="Output metrics json")
+    ap.add_argument("--pred_out", default=None, help="Optional predictions csv")
+    ap.add_argument("--base_model_dir", default=None, help="Required if ckpt_dir is a LoRA adapter")
+    ap.add_argument("--merge_lora", type=int, default=1, help="Merge LoRA into base weights for inference")
+    ap.add_argument("--max_len", type=int, default=256)
+    ap.add_argument("--batch_size", type=int, default=64)
+    ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    ap.add_argument("--thr_from", type=str, default="self", choices=["self","fixed"],
+                    help="self: pick best thr on this set; fixed: use --fixed_thr")
+    ap.add_argument("--fixed_thr", type=float, default=0.5)
+    args = ap.parse_args()
+
+    csv_path = os.path.join(args.data_dir, args.csv)
+    ds = EscapeCSVDataset(csv_path)
+    tokenizer = load_tokenizer(args.ckpt_dir)
+    collator = Collator(tokenizer, max_length=args.max_len)
+    dl = DataLoader(ds, batch_size=args.batch_size, shuffle=False, collate_fn=collator)
+
+    model = load_model_for_inference(
+        args.ckpt_dir,
+        base_model_dir=args.base_model_dir,
+        merge_lora=bool(args.merge_lora),
+    ).to(args.device)
+    model.eval()
+
+    all_logits = []
+    all_labels = []
+    all_ids = []
+    for batch in tqdm(dl, desc="eval"):
+        input_ids = batch["input_ids"].to(args.device)
+        attention_mask = batch["attention_mask"].to(args.device)
+        labels = batch["labels"].cpu().numpy()
+        out = model(input_ids=input_ids, attention_mask=attention_mask)
+        logits = out["logits"].cpu().numpy()
+        all_logits.append(logits)
+        all_labels.append(labels)
+        all_ids.extend(batch["seq_id"])
+
+    logits = np.concatenate(all_logits, axis=0)
+    labels = np.concatenate(all_labels, axis=0)
+    probs = 1/(1+np.exp(-logits))
+
+    # Report per-head metrics, focus on any
+    report = {"any": metrics_from_probs(labels[:,0], probs[:,0], thr_from=args.thr_from, fixed_thr=args.fixed_thr)}
+    # macro pr_auc on subheads
+    from sklearn.metrics import average_precision_score
+    sub_prs=[]
+    for i,name in enumerate(LABEL_NAMES[1:], start=1):
+        try:
+            pr=float(average_precision_score(labels[:,i], probs[:,i]))
+        except Exception:
+            pr=float("nan")
+        report[name]={"pr_auc": pr}
+        sub_prs.append(pr)
+    report["macro_pr_subheads"]=float(np.nanmean(sub_prs))
+
+    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+    with open(args.out, "w", encoding="utf-8") as f:
+        json.dump(report, f, ensure_ascii=False, indent=2)
+
+    if args.pred_out:
+        df = pd.DataFrame({"seq_id": all_ids})
+        for i,name in enumerate(LABEL_NAMES):
+            df[f"p_{name}"] = probs[:,i]
+            df[f"y_{name}"] = labels[:,i]
+        df.to_csv(args.pred_out, index=False)
+
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,9 @@
+torch
+transformers>=4.36
+datasets
+accelerate
+peft
+pandas
+scikit-learn
+tqdm
+pyyaml

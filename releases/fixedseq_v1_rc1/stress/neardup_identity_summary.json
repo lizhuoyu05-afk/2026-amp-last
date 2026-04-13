@@ -1,0 +1,30 @@
+{
+  "test_rows_total": 16489,
+  "hits_rows_mmseqs": 42039,
+  "coverage_80_hit_queries": 8563,
+  "coverage_99_hit_queries": 4855,
+  "removal_counts": {
+    "exact_like_ge99.9_cov99": 473,
+    "ge90_cov80": 3040,
+    "ge80_cov80": 4971,
+    "ge70_cov80": 5953
+  },
+  "retained_counts": {
+    "exact_removed_cov99": 16016,
+    "maxidlt90_cov80": 13449,
+    "maxidlt80_cov80": 11518,
+    "maxidlt70_cov80": 10536
+  },
+  "retained_ratio": {
+    "exact_removed_cov99": 0.971314209472982,
+    "maxidlt90_cov80": 0.8156346655345988,
+    "maxidlt80_cov80": 0.6985262902541088,
+    "maxidlt70_cov80": 0.6389714355024562
+  },
+  "artifacts": {
+    "Test_exact_removed_cov99.csv": "/root/autodl-tmp/amp_fixedseq_runs/stress_tests_fixedseq_v1/neardup/filtered_tests/Test_exact_removed_cov99.csv",
+    "Test_maxidlt90_cov80.csv": "/root/autodl-tmp/amp_fixedseq_runs/stress_tests_fixedseq_v1/neardup/filtered_tests/Test_maxidlt90_cov80.csv",
+    "Test_maxidlt80_cov80.csv": "/root/autodl-tmp/amp_fixedseq_runs/stress_tests_fixedseq_v1/neardup/filtered_tests/Test_maxidlt80_cov80.csv",
+    "Test_maxidlt70_cov80.csv": "/root/autodl-tmp/amp_fixedseq_runs/stress_tests_fixedseq_v1/neardup/filtered_tests/Test_maxidlt70_cov80.csv"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "input_csv": "/root/work_runtime/data/dataverse_files_fixedseq_v1/Fold2.csv",
+  "pred_out": "/root/autodl-tmp/amp_fixedseq_runs/bench_fixedseq_v1/fold2_fast_fp16_bs64_sort1.csv",
+  "chunks_dir": "/root/autodl-tmp/amp_fixedseq_runs/bench_fixedseq_v1/fold2_fast_fp16_bs64_sort1.csv.chunks",
+  "num_chunks_merged": 1,
+  "total_rows": 32922,
+  "total_infer_sec": 11.080238135997206,
+  "total_wall_sec": 12.220177369192243,
+  "rows_per_sec_infer": 2971.2357799462643,
+  "rows_per_sec_wall": 2694.068916135229,
+  "config": {
+    "batch_size": 64,
+    "num_workers": 4,
+    "amp": "fp16",
+    "sort_by_len": true,
+    "chunk_size": 50000,
+    "max_len": 256,
+    "device": "cuda"
+  },
+  "chunks": [
+    {
+      "chunk_idx": 0,
+      "skipped": false,
+      "rows": 32922,
+      "infer_sec": 11.080238135997206,
+      "rows_per_sec_infer": 2971.2357799462643
+    }
+  ]
+}
