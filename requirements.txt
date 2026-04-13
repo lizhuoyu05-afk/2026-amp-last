@@ -7,3 +7,5 @@ pandas
 scikit-learn
 tqdm
 pyyaml
+flask
+requests
