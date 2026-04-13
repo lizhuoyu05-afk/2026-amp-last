@@ -115,3 +115,42 @@ They do not affect this fine-tuning pipeline.
 
 ### 自定义候选文件（无标签）
 将 `--in_csv /path/to/candidates.csv` 替换为真实路径；建议先按 `pred_any` 或 `p_Antimicrobial` 筛选，再按 `p_Antibacterial / p_Antifungal / p_Antiviral` 排序。
+
+## 远程动态网页 GUI（细胞毒性预测）
+
+新增了一个 Flask Web GUI，支持“前端动态请求 -> 本地 Flask 代理 -> 远程推理服务”。
+
+### 1) 安装依赖
+
+```bash
+pip install -r requirements.txt
+```
+
+### 2) 配置远程服务
+
+```bash
+export REMOTE_PREDICT_URL="https://your-server.example.com/predict"
+# 可选：如远程服务需要鉴权
+export REMOTE_API_KEY="your_token"
+```
+
+### 3) 启动 GUI
+
+```bash
+python web_app.py
+```
+
+打开浏览器访问：`http://127.0.0.1:7860`
+
+### 4) 远程接口返回格式建议
+
+接口至少返回一个概率字段（0~1），支持这些键名之一：
+`probability` / `p` / `score` / `cytotoxicity` / `toxic_prob`
+
+例如：
+
+```json
+{
+  "probability": 0.873
+}
+```

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>细胞毒性预测器</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="page-wrap">
+    <header class="top-bar">
+      <h1>细胞毒性预测器 · Cytotoxicity GUI</h1>
+      <span class="badge">Dynamic Web Client</span>
+    </header>
+
+    <main class="grid">
+      <section class="panel">
+        <h2>输入序列</h2>
+        <textarea id="sequence" placeholder="例如: GIGAVLKVLTTGLPALIS\nWIKRKRQQ"></textarea>
+
+        <div class="chips">
+          <span>长度 <b id="seqLen">0 aa</b></span>
+          <span>模型 <b>remote API</b></span>
+          <span>阈值 <b>0.59</b></span>
+        </div>
+
+        <div class="actions">
+          <button id="predictBtn">开始预测</button>
+          <button id="clearBtn" class="ghost">清空</button>
+        </div>
+
+        <p class="status" id="statusText">
+          {% if remote_configured %}
+          远程服务已配置，可直接调用。
+          {% else %}
+          未配置远程服务，请设置 REMOTE_PREDICT_URL。
+          {% endif %}
+        </p>
+      </section>
+
+      <section class="panel">
+        <h2>预测结果</h2>
+
+        <div class="result-card">
+          <p class="label">P(Cytotoxicity)</p>
+          <p class="prob" id="probability">--</p>
+          <div class="progress">
+            <div class="bar" id="bar"></div>
+          </div>
+        </div>
+
+        <p class="verdict" id="verdict">判定：等待输入</p>
+
+        <ul class="notes">
+          <li>输出形式：概率 + 二分类标签</li>
+          <li>接口：前端动态调用 Flask，再代理到远程模型服务</li>
+          <li>用途：适配远程服务器部署的推理 API</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
