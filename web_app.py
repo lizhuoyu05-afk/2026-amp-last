@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import csv
+import io
 import os
 from typing import Any
 
@@ -12,6 +14,7 @@ app = Flask(__name__)
 REMOTE_PREDICT_URL = os.getenv("REMOTE_PREDICT_URL", "").strip()
 REMOTE_TIMEOUT = float(os.getenv("REMOTE_TIMEOUT", "20"))
 REMOTE_API_KEY = os.getenv("REMOTE_API_KEY", "").strip()
+THRESHOLD = 0.59
 
 
 @app.get("/")
@@ -27,15 +30,101 @@ def predict() -> Any:
     if not sequence:
         return jsonify({"error": "请输入待预测的序列。"}), 400
 
-    if not REMOTE_PREDICT_URL:
+    response = _predict_sequence(sequence)
+    if "error" in response:
+        return jsonify(response), response.get("status", 500)
+
+    return jsonify(response)
+
+
+@app.post("/api/predict-batch")
+def predict_batch() -> Any:
+    file = request.files.get("file")
+    if file is None:
+        return jsonify({"error": "请上传 CSV 文件（file 字段）。"}), 400
+
+    try:
+        text = file.stream.read().decode("utf-8-sig")
+    except UnicodeDecodeError:
+        return jsonify({"error": "CSV 编码错误，请使用 UTF-8。"}), 400
+
+    reader = csv.DictReader(io.StringIO(text))
+    if not reader.fieldnames:
+        return jsonify({"error": "CSV 缺少表头。"}), 400
+
+    seq_column = _find_sequence_column(reader.fieldnames)
+    if not seq_column:
         return jsonify(
             {
-                "error": (
-                    "未配置远程服务地址。请设置环境变量 REMOTE_PREDICT_URL，"
-                    "例如 https://your-server/predict"
-                )
+                "error": "未找到序列列，请使用 Sequence / sequence / seq / peptide 作为列名。",
+                "columns": reader.fieldnames,
             }
-        ), 500
+        ), 400
+
+    rows = list(reader)
+    if not rows:
+        return jsonify({"error": "CSV 没有数据行。"}), 400
+
+    results: list[dict[str, Any]] = []
+    success_count = 0
+    for idx, row in enumerate(rows, start=1):
+        sequence = str(row.get(seq_column, "")).strip().upper()
+        if not sequence:
+            results.append(
+                {
+                    "row": idx,
+                    "sequence": "",
+                    "probability": None,
+                    "verdict": "",
+                    "status": "error",
+                    "error": "该行序列为空",
+                }
+            )
+            continue
+
+        pred = _predict_sequence(sequence)
+        if "error" in pred:
+            results.append(
+                {
+                    "row": idx,
+                    "sequence": sequence,
+                    "probability": None,
+                    "verdict": "",
+                    "status": "error",
+                    "error": pred["error"],
+                }
+            )
+        else:
+            success_count += 1
+            results.append(
+                {
+                    "row": idx,
+                    "sequence": sequence,
+                    "probability": pred["probability"],
+                    "verdict": pred["verdict"],
+                    "status": "ok",
+                    "error": "",
+                }
+            )
+
+    return jsonify(
+        {
+            "total": len(results),
+            "success": success_count,
+            "failed": len(results) - success_count,
+            "threshold": THRESHOLD,
+            "sequence_column": seq_column,
+            "results": results,
+        }
+    )
+
+
+def _predict_sequence(sequence: str) -> dict[str, Any]:
+    if not REMOTE_PREDICT_URL:
+        return {
+            "error": "未配置远程服务地址。请设置环境变量 REMOTE_PREDICT_URL。",
+            "status": 500,
+        }
 
     remote_payload = {"sequence": sequence}
     headers = {"Content-Type": "application/json"}
@@ -52,34 +141,34 @@ def predict() -> Any:
         response.raise_for_status()
         remote_data = response.json()
     except requests.RequestException as exc:
-        return jsonify({"error": f"远程服务连接失败: {exc}"}), 502
+        return {"error": f"远程服务连接失败: {exc}", "status": 502}
     except ValueError:
-        return jsonify({"error": "远程服务返回了非 JSON 数据。"}), 502
+        return {"error": "远程服务返回了非 JSON 数据。", "status": 502}
 
     probability = _extract_probability(remote_data)
     if probability is None:
-        return (
-            jsonify(
-                {
-                    "error": "远程服务返回格式不符合预期，未找到 cytotoxicity 概率字段。",
-                    "raw": remote_data,
-                }
-            ),
-            502,
-        )
+        return {
+            "error": "远程服务返回格式不符合预期，未找到 cytotoxicity 概率字段。",
+            "status": 502,
+        }
 
     probability = max(0.0, min(1.0, float(probability)))
-    verdict = "高危 / Toxic" if probability >= 0.59 else "低危 / Non-toxic"
+    verdict = "高危 / Toxic" if probability >= THRESHOLD else "低危 / Non-toxic"
+    return {
+        "sequence": sequence,
+        "probability": probability,
+        "threshold": THRESHOLD,
+        "verdict": verdict,
+        "remote_raw": remote_data,
+    }
 
-    return jsonify(
-        {
-            "sequence": sequence,
-            "probability": probability,
-            "threshold": 0.59,
-            "verdict": verdict,
-            "remote_raw": remote_data,
-        }
-    )
+
+def _find_sequence_column(columns: list[str]) -> str | None:
+    lookup = {col.lower().strip(): col for col in columns}
+    for candidate in ["sequence", "seq", "peptide", "sequence_aa"]:
+        if candidate in lookup:
+            return lookup[candidate]
+    return None
 
 
 def _extract_probability(data: Any) -> float | None:
