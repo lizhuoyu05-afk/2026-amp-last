@@ -2,53 +2,17 @@ const sequenceEl = document.getElementById('sequence');
 const seqLenEl = document.getElementById('seqLen');
 const predictBtn = document.getElementById('predictBtn');
 const clearBtn = document.getElementById('clearBtn');
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-=======
 const batchBtn = document.getElementById('batchBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 const csvFileEl = document.getElementById('csvFile');
->>>>>>> theirs
-=======
-const batchBtn = document.getElementById('batchBtn');
-const downloadBtn = document.getElementById('downloadBtn');
-const csvFileEl = document.getElementById('csvFile');
->>>>>>> theirs
-=======
-const batchBtn = document.getElementById('batchBtn');
-const csvFileEl = document.getElementById('csvFile');
->>>>>>> theirs
-=======
-const batchBtn = document.getElementById('batchBtn');
-const csvFileEl = document.getElementById('csvFile');
->>>>>>> theirs
 const statusText = document.getElementById('statusText');
 const probabilityEl = document.getElementById('probability');
 const verdictEl = document.getElementById('verdict');
 const barEl = document.getElementById('bar');
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-=======
-=======
->>>>>>> theirs
 const batchSummaryEl = document.getElementById('batchSummary');
 const batchTableBodyEl = document.getElementById('batchTableBody');
 
 let latestBatchResults = [];
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
-const batchSummaryEl = document.getElementById('batchSummary');
->>>>>>> theirs
-=======
-const batchSummaryEl = document.getElementById('batchSummary');
->>>>>>> theirs
 
 function normalizedLength(value) {
   return value.replace(/\s+/g, '').length;
@@ -58,14 +22,6 @@ function updateLength() {
   seqLenEl.textContent = `${normalizedLength(sequenceEl.value)} aa`;
 }
 
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-sequenceEl.addEventListener('input', updateLength);
-=======
-=======
->>>>>>> theirs
 function renderBatchTable(results) {
   if (!results.length) {
     batchTableBodyEl.innerHTML = '<tr><td colspan="5" class="empty">无批量数据</td></tr>';
@@ -86,32 +42,24 @@ function renderBatchTable(results) {
 
 function downloadBatchCsv() {
   if (!latestBatchResults.length) return;
+
+  const esc = (v) => `"${String(v ?? '').replaceAll('"', '""')}"`;
   const header = 'row,sequence,probability,verdict,status,error';
-  const body = latestBatchResults.map((row) => {
-    const esc = (v) => `"${String(v ?? '').replaceAll('"', '""')}"`;
-    return [row.row, row.sequence, row.probability, row.verdict, row.status, row.error].map(esc).join(',');
-  }).join('\n');
+  const body = latestBatchResults.map((row) => (
+    [row.row, row.sequence, row.probability, row.verdict, row.status, row.error].map(esc).join(',')
+  )).join('\n');
+
   const blob = new Blob([`${header}\n${body}`], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'cytotoxicity_batch_results.csv';
-  a.click();
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'cytotoxicity_batch_results.csv';
+  link.click();
   URL.revokeObjectURL(url);
 }
 
 sequenceEl.addEventListener('input', updateLength);
 downloadBtn.addEventListener('click', downloadBatchCsv);
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
-sequenceEl.addEventListener('input', updateLength);
->>>>>>> theirs
-=======
-sequenceEl.addEventListener('input', updateLength);
->>>>>>> theirs
 
 clearBtn.addEventListener('click', () => {
   sequenceEl.value = '';
@@ -148,23 +96,7 @@ predictBtn.addEventListener('click', async () => {
     probabilityEl.textContent = prob.toFixed(3);
     verdictEl.textContent = `判定：${data.verdict}`;
     barEl.style.width = `${Math.round(prob * 100)}%`;
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-    statusText.textContent = '预测完成。';
-=======
     statusText.textContent = '单条预测完成。';
->>>>>>> theirs
-=======
-    statusText.textContent = '单条预测完成。';
->>>>>>> theirs
-=======
-    statusText.textContent = '单条预测完成。';
->>>>>>> theirs
-=======
-    statusText.textContent = '单条预测完成。';
->>>>>>> theirs
   } catch (err) {
     statusText.textContent = `错误：${err.message}`;
   } finally {
@@ -172,17 +104,6 @@ predictBtn.addEventListener('click', async () => {
   }
 });
 
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 batchBtn.addEventListener('click', async () => {
   if (!csvFileEl.files.length) {
     statusText.textContent = '请先选择 CSV 文件。';
@@ -206,15 +127,10 @@ batchBtn.addEventListener('click', async () => {
       throw new Error(data.error || '批量预测失败');
     }
 
-<<<<<<< ours
-<<<<<<< ours
     latestBatchResults = data.results || [];
     renderBatchTable(latestBatchResults);
     downloadBtn.disabled = latestBatchResults.length === 0;
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
+
     batchSummaryEl.textContent = `批量结果：总计 ${data.total}，成功 ${data.success}，失败 ${data.failed}（识别列：${data.sequence_column}）`;
     statusText.textContent = '批量预测完成。';
   } catch (err) {
@@ -224,14 +140,4 @@ batchBtn.addEventListener('click', async () => {
   }
 });
 
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 updateLength();
