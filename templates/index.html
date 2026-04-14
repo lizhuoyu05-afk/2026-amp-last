@@ -10,6 +10,7 @@
   <div class="page-wrap">
     <header class="top-bar">
 <<<<<<< ours
+<<<<<<< ours
       <h1>细胞毒性预测器 · Cytotoxicity GUI</h1>
 <<<<<<< ours
       <span class="badge">Dynamic Web Client</span>
@@ -17,10 +18,15 @@
       <h1>细胞毒性预测器 · GUI示意</h1>
       <span class="badge">ESM Student Model</span>
 >>>>>>> theirs
+=======
+      <h1>细胞毒性预测器 · Cytotoxicity GUI</h1>
+      <span class="badge">Dynamic Web Client</span>
+>>>>>>> theirs
     </header>
 
     <main class="grid">
       <section class="panel">
+<<<<<<< ours
 <<<<<<< ours
 <<<<<<< ours
         <h2>输入序列</h2>
@@ -28,6 +34,10 @@
         <h2>单条预测</h2>
 >>>>>>> theirs
         <textarea id="sequence" placeholder="例如: GIGAVLKVLTTGLPALIS\nWIKRKRQQ"></textarea>
+=======
+        <h2>输入序列</h2>
+        <textarea id="sequence" placeholder="例如: GIGAVLKVLTTGLPALIS&#10;WIKRKRQQ"></textarea>
+>>>>>>> theirs
 =======
         <h2>输入序列</h2>
         <textarea id="sequence" placeholder="例如: GIGAVLKVLTTGLPALIS&#10;WIKRKRQQ"></textarea>
@@ -46,6 +56,7 @@
 
 <<<<<<< ours
 <<<<<<< ours
+<<<<<<< ours
 =======
         <h3>批量 CSV 预测</h3>
         <p class="hint">上传 CSV，包含一列 `Sequence`（或 `sequence` / `seq` / `peptide`）。</p>
@@ -62,6 +73,17 @@
         <div class="actions">
           <input id="csvFile" type="file" accept=".csv" />
           <button id="batchBtn">上传并批量预测</button>
+        </div>
+
+>>>>>>> theirs
+=======
+        <div class="csv-block">
+          <h3>批量 CSV 预测</h3>
+          <p class="hint">上传 CSV（支持列名：Sequence / sequence / seq / peptide）</p>
+          <div class="actions">
+            <input id="csvFile" type="file" accept=".csv" />
+            <button id="batchBtn">上传并批量预测</button>
+          </div>
         </div>
 
 >>>>>>> theirs
@@ -89,10 +111,14 @@
 
 <<<<<<< ours
 <<<<<<< ours
+<<<<<<< ours
+=======
+>>>>>>> theirs
         <ul class="notes">
           <li>输出形式：概率 + 二分类标签</li>
           <li>接口：前端动态调用 Flask，再代理到远程模型服务</li>
           <li>用途：适配远程服务器部署的推理 API</li>
+<<<<<<< ours
         </ul>
 =======
         <div class="batch-summary" id="batchSummary">批量结果：暂无</div>
@@ -187,10 +213,15 @@
         <ul class="notes">
           <li>输出形式：概率 + 二分类标签</li>
           <li>接口：前端动态调用 Flask，再代理到远程模型服务</li>
+=======
+>>>>>>> theirs
           <li id="batchSummary">批量结果：暂无</li>
         </ul>
       </section>
     </main>
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
   </div>
 
