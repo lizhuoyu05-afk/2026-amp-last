@@ -155,7 +155,10 @@ python web_app.py
 }
 ```
 <<<<<<< ours
+<<<<<<< ours
 =======
+=======
+>>>>>>> theirs
 
 ### 5) 批量 CSV 上传预测
 
@@ -165,4 +168,7 @@ python web_app.py
 - 序列列名自动识别：`Sequence` / `sequence` / `seq` / `peptide`
 - 返回：每行的概率、判定、状态、错误信息（如有）
 - 页面支持结果预览（前 30 条）与结果 CSV 下载
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs

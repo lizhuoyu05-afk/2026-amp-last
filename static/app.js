@@ -3,6 +3,12 @@ const seqLenEl = document.getElementById('seqLen');
 const predictBtn = document.getElementById('predictBtn');
 const clearBtn = document.getElementById('clearBtn');
 <<<<<<< ours
+<<<<<<< ours
+=======
+const batchBtn = document.getElementById('batchBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const csvFileEl = document.getElementById('csvFile');
+>>>>>>> theirs
 =======
 const batchBtn = document.getElementById('batchBtn');
 const downloadBtn = document.getElementById('downloadBtn');
@@ -13,11 +19,17 @@ const probabilityEl = document.getElementById('probability');
 const verdictEl = document.getElementById('verdict');
 const barEl = document.getElementById('bar');
 <<<<<<< ours
+<<<<<<< ours
 =======
+=======
+>>>>>>> theirs
 const batchSummaryEl = document.getElementById('batchSummary');
 const batchTableBodyEl = document.getElementById('batchTableBody');
 
 let latestBatchResults = [];
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 
 function normalizedLength(value) {
@@ -29,8 +41,11 @@ function updateLength() {
 }
 
 <<<<<<< ours
+<<<<<<< ours
 sequenceEl.addEventListener('input', updateLength);
 =======
+=======
+>>>>>>> theirs
 function renderBatchTable(results) {
   if (!results.length) {
     batchTableBodyEl.innerHTML = '<tr><td colspan="5" class="empty">无批量数据</td></tr>';
@@ -67,6 +82,9 @@ function downloadBatchCsv() {
 
 sequenceEl.addEventListener('input', updateLength);
 downloadBtn.addEventListener('click', downloadBatchCsv);
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 
 clearBtn.addEventListener('click', () => {
@@ -105,7 +123,11 @@ predictBtn.addEventListener('click', async () => {
     verdictEl.textContent = `判定：${data.verdict}`;
     barEl.style.width = `${Math.round(prob * 100)}%`;
 <<<<<<< ours
+<<<<<<< ours
     statusText.textContent = '预测完成。';
+=======
+    statusText.textContent = '单条预测完成。';
+>>>>>>> theirs
 =======
     statusText.textContent = '单条预测完成。';
 >>>>>>> theirs
@@ -117,7 +139,10 @@ predictBtn.addEventListener('click', async () => {
 });
 
 <<<<<<< ours
+<<<<<<< ours
 =======
+=======
+>>>>>>> theirs
 batchBtn.addEventListener('click', async () => {
   if (!csvFileEl.files.length) {
     statusText.textContent = '请先选择 CSV 文件。';
@@ -153,5 +178,8 @@ batchBtn.addEventListener('click', async () => {
   }
 });
 
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 updateLength();
