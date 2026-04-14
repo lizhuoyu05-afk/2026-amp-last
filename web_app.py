@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-<<<<<<< ours
-=======
 import csv
 import io
->>>>>>> theirs
 import os
 from typing import Any
 
@@ -17,10 +14,7 @@ app = Flask(__name__)
 REMOTE_PREDICT_URL = os.getenv("REMOTE_PREDICT_URL", "").strip()
 REMOTE_TIMEOUT = float(os.getenv("REMOTE_TIMEOUT", "20"))
 REMOTE_API_KEY = os.getenv("REMOTE_API_KEY", "").strip()
-<<<<<<< ours
-=======
 THRESHOLD = 0.59
->>>>>>> theirs
 
 
 @app.get("/")
@@ -36,17 +30,6 @@ def predict() -> Any:
     if not sequence:
         return jsonify({"error": "请输入待预测的序列。"}), 400
 
-<<<<<<< ours
-    if not REMOTE_PREDICT_URL:
-        return jsonify(
-            {
-                "error": (
-                    "未配置远程服务地址。请设置环境变量 REMOTE_PREDICT_URL，"
-                    "例如 https://your-server/predict"
-                )
-            }
-        ), 500
-=======
     response = _predict_sequence(sequence)
     if "error" in response:
         return jsonify(response), response.get("status", 500)
@@ -142,7 +125,6 @@ def _predict_sequence(sequence: str) -> dict[str, Any]:
             "error": "未配置远程服务地址。请设置环境变量 REMOTE_PREDICT_URL。",
             "status": 500,
         }
->>>>>>> theirs
 
     remote_payload = {"sequence": sequence}
     headers = {"Content-Type": "application/json"}
@@ -159,36 +141,6 @@ def _predict_sequence(sequence: str) -> dict[str, Any]:
         response.raise_for_status()
         remote_data = response.json()
     except requests.RequestException as exc:
-<<<<<<< ours
-        return jsonify({"error": f"远程服务连接失败: {exc}"}), 502
-    except ValueError:
-        return jsonify({"error": "远程服务返回了非 JSON 数据。"}), 502
-
-    probability = _extract_probability(remote_data)
-    if probability is None:
-        return (
-            jsonify(
-                {
-                    "error": "远程服务返回格式不符合预期，未找到 cytotoxicity 概率字段。",
-                    "raw": remote_data,
-                }
-            ),
-            502,
-        )
-
-    probability = max(0.0, min(1.0, float(probability)))
-    verdict = "高危 / Toxic" if probability >= 0.59 else "低危 / Non-toxic"
-
-    return jsonify(
-        {
-            "sequence": sequence,
-            "probability": probability,
-            "threshold": 0.59,
-            "verdict": verdict,
-            "remote_raw": remote_data,
-        }
-    )
-=======
         return {"error": f"远程服务连接失败: {exc}", "status": 502}
     except ValueError:
         return {"error": "远程服务返回了非 JSON 数据。", "status": 502}
@@ -217,7 +169,6 @@ def _find_sequence_column(columns: list[str]) -> str | None:
         if candidate in lookup:
             return lookup[candidate]
     return None
->>>>>>> theirs
 
 
 def _extract_probability(data: Any) -> float | None:
