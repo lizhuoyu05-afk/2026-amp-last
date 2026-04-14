@@ -15,6 +15,8 @@ REMOTE_PREDICT_URL = os.getenv("REMOTE_PREDICT_URL", "").strip()
 REMOTE_TIMEOUT = float(os.getenv("REMOTE_TIMEOUT", "20"))
 REMOTE_API_KEY = os.getenv("REMOTE_API_KEY", "").strip()
 THRESHOLD = 0.59
+MAX_BATCH_ROWS = int(os.getenv("MAX_BATCH_ROWS", "500"))
+MAX_CSV_BYTES = int(os.getenv("MAX_CSV_BYTES", str(2 * 1024 * 1024)))
 
 
 @app.get("/")
@@ -25,7 +27,7 @@ def index() -> str:
 @app.post("/api/predict")
 def predict() -> Any:
     payload = request.get_json(silent=True) or {}
-    sequence = str(payload.get("sequence", "")).strip().upper()
+    sequence = _normalize_sequence(payload.get("sequence", ""))
 
     if not sequence:
         return jsonify({"error": "请输入待预测的序列。"}), 400
@@ -39,16 +41,11 @@ def predict() -> Any:
 
 @app.post("/api/predict-batch")
 def predict_batch() -> Any:
-    file = request.files.get("file")
-    if file is None:
-        return jsonify({"error": "请上传 CSV 文件（file 字段）。"}), 400
+    csv_text, source = _read_csv_text_from_request()
+    if csv_text is None:
+        return source
 
-    try:
-        text = file.stream.read().decode("utf-8-sig")
-    except UnicodeDecodeError:
-        return jsonify({"error": "CSV 编码错误，请使用 UTF-8。"}), 400
-
-    reader = csv.DictReader(io.StringIO(text))
+    reader = csv.DictReader(io.StringIO(csv_text))
     if not reader.fieldnames:
         return jsonify({"error": "CSV 缺少表头。"}), 400
 
@@ -65,10 +62,21 @@ def predict_batch() -> Any:
     if not rows:
         return jsonify({"error": "CSV 没有数据行。"}), 400
 
+    if len(rows) > MAX_BATCH_ROWS:
+        return jsonify(
+            {
+                "error": f"CSV 行数超过限制（最多 {MAX_BATCH_ROWS} 行）。",
+                "max_rows": MAX_BATCH_ROWS,
+                "actual_rows": len(rows),
+            }
+        ), 400
+
     results: list[dict[str, Any]] = []
     success_count = 0
+    sequence_cache: dict[str, dict[str, Any]] = {}
+
     for idx, row in enumerate(rows, start=1):
-        sequence = str(row.get(seq_column, "")).strip().upper()
+        sequence = _normalize_sequence(row.get(seq_column, ""))
         if not sequence:
             results.append(
                 {
@@ -82,7 +90,11 @@ def predict_batch() -> Any:
             )
             continue
 
-        pred = _predict_sequence(sequence)
+        pred = sequence_cache.get(sequence)
+        if pred is None:
+            pred = _predict_sequence(sequence)
+            sequence_cache[sequence] = pred
+
         if "error" in pred:
             results.append(
                 {
@@ -94,29 +106,70 @@ def predict_batch() -> Any:
                     "error": pred["error"],
                 }
             )
-        else:
-            success_count += 1
-            results.append(
-                {
-                    "row": idx,
-                    "sequence": sequence,
-                    "probability": pred["probability"],
-                    "verdict": pred["verdict"],
-                    "status": "ok",
-                    "error": "",
-                }
-            )
+            continue
+
+        success_count += 1
+        results.append(
+            {
+                "row": idx,
+                "sequence": sequence,
+                "probability": pred["probability"],
+                "verdict": pred["verdict"],
+                "status": "ok",
+                "error": "",
+            }
+        )
 
     return jsonify(
         {
+            "source": source,
             "total": len(results),
             "success": success_count,
             "failed": len(results) - success_count,
             "threshold": THRESHOLD,
             "sequence_column": seq_column,
+            "unique_sequences": len(sequence_cache),
             "results": results,
         }
     )
+
+
+def _read_csv_text_from_request() -> tuple[str | None, tuple[Any, int] | str]:
+    file = request.files.get("file")
+    if file is not None:
+        raw = file.stream.read(MAX_CSV_BYTES + 1)
+        if len(raw) > MAX_CSV_BYTES:
+            return None, (
+                jsonify(
+                    {
+                        "error": f"CSV 文件过大（最多 {MAX_CSV_BYTES} bytes）。",
+                        "max_bytes": MAX_CSV_BYTES,
+                    }
+                ),
+                400,
+            )
+
+        try:
+            return raw.decode("utf-8-sig"), "multipart"
+        except UnicodeDecodeError:
+            return None, (jsonify({"error": "CSV 编码错误，请使用 UTF-8。"}), 400)
+
+    payload = request.get_json(silent=True) or {}
+    csv_text = payload.get("csv_text")
+    if isinstance(csv_text, str) and csv_text.strip():
+        if len(csv_text.encode("utf-8")) > MAX_CSV_BYTES:
+            return None, (
+                jsonify(
+                    {
+                        "error": f"CSV 文本过大（最多 {MAX_CSV_BYTES} bytes）。",
+                        "max_bytes": MAX_CSV_BYTES,
+                    }
+                ),
+                400,
+            )
+        return csv_text, "json"
+
+    return None, (jsonify({"error": "请上传 CSV 文件（file 字段）。"}), 400)
 
 
 def _predict_sequence(sequence: str) -> dict[str, Any]:
@@ -197,6 +250,10 @@ def _extract_probability(data: Any) -> float | None:
         return float(data)
 
     return None
+
+
+def _normalize_sequence(value: Any) -> str:
+    return str(value).strip().upper()
 
 
 def _is_number(value: Any) -> bool:
