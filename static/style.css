@@ -2,14 +2,18 @@
   --bg: #0f111b;
 <<<<<<< ours
 <<<<<<< ours
+<<<<<<< ours
   --bg-soft: #15192a;
   --card: #1b2035;
+=======
+>>>>>>> theirs
 =======
 >>>>>>> theirs
   --card-edge: #2f3a62;
   --text: #e8ecff;
   --muted: #9aa5d1;
   --accent: #7b61ff;
+<<<<<<< ours
 <<<<<<< ours
   --accent-2: #2fd1c3;
 =======
@@ -20,6 +24,8 @@
   --text: #e8ecff;
   --muted: #9aa5d1;
   --accent: #4d6bff;
+>>>>>>> theirs
+=======
 >>>>>>> theirs
   --danger: #ff4d6d;
 }
@@ -32,6 +38,7 @@ body {
   color: var(--text);
 }
 
+<<<<<<< ours
 <<<<<<< ours
 <<<<<<< ours
 .page-wrap {
@@ -70,10 +77,23 @@ body {
   background: rgba(255, 255, 255, 0.15);
   font-size: 0.85rem;
 }
+=======
+.page-wrap { max-width: 1100px; margin: 32px auto; padding: 0 20px 28px; }
+.top-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 18px;
+  background: linear-gradient(90deg, #2646b8, #304ec7);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(59, 36, 121, 0.4);
+}
+.top-bar h1 { margin: 0; font-size: 1.8rem; }
+.badge { padding: 6px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.15); font-size: 0.85rem; }
+>>>>>>> theirs
 
 .grid {
   margin-top: 20px;
   display: grid;
+<<<<<<< ours
   grid-template-columns: repeat(2, minmax(280px, 1fr));
   gap: 16px;
 }
@@ -84,6 +104,12 @@ body {
 
 .grid { margin-top: 20px; display: grid; grid-template-columns: repeat(2, minmax(320px, 1fr)); gap: 16px; }
 >>>>>>> theirs
+=======
+  grid-template-columns: repeat(2, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+>>>>>>> theirs
 .panel {
   background: linear-gradient(165deg, rgba(27,32,53,.95), rgba(19,23,39,.95));
   border: 1px solid var(--card-edge);
@@ -91,8 +117,14 @@ body {
   padding: 18px;
 }
 <<<<<<< ours
+<<<<<<< ours
 
 h2 { margin-top: 0; font-size: 1.1rem; }
+=======
+
+h2 { margin-top: 0; font-size: 1.4rem; }
+h3 { margin: 18px 0 8px; font-size: 1rem; color: #d9defa; }
+>>>>>>> theirs
 
 textarea {
   width: 100%;
@@ -104,6 +136,7 @@ textarea {
   color: var(--text);
   padding: 12px;
   font-size: 0.95rem;
+<<<<<<< ours
 =======
 h2, h3 { margin-top: 0; }
 h3 { margin: 16px 0 8px; font-size: 1rem; color: #d9defa; }
@@ -113,13 +146,18 @@ textarea {
   border-radius: 12px; border: 1px solid #3a4266;
   background: #12162a; color: var(--text); padding: 12px;
 >>>>>>> theirs
+=======
+>>>>>>> theirs
 }
 
 .chips { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0 16px; }
 .chips span {
   background: rgba(123, 97, 255, 0.15);
 <<<<<<< ours
+<<<<<<< ours
   color: #cad3ff;
+=======
+>>>>>>> theirs
 =======
 >>>>>>> theirs
   border: 1px solid rgba(123, 97, 255, .35);
@@ -128,6 +166,7 @@ textarea {
   font-size: 0.85rem;
 }
 
+<<<<<<< ours
 <<<<<<< ours
 .actions { display: flex; gap: 10px; }
 =======
@@ -194,10 +233,14 @@ textarea {
 
 .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 >>>>>>> theirs
+=======
+.actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+>>>>>>> theirs
 button {
   border: none;
   border-radius: 10px;
   padding: 10px 16px;
+<<<<<<< ours
 <<<<<<< ours
   cursor: pointer;
   font-weight: 700;
@@ -222,6 +265,14 @@ button {
   color: #fff;
   background: linear-gradient(90deg, var(--accent), #7f5eff);
 >>>>>>> theirs
+=======
+  cursor: pointer;
+  font-weight: 700;
+}
+#predictBtn, #batchBtn {
+  color: white;
+  background: linear-gradient(90deg, var(--accent), #9d6bff);
+>>>>>>> theirs
 }
 button.ghost {
   background: transparent;
@@ -230,10 +281,13 @@ button.ghost {
 }
 <<<<<<< ours
 <<<<<<< ours
+<<<<<<< ours
 
 .status { margin-top: 12px; color: var(--muted); font-size: .9rem; }
 =======
 button:disabled { opacity: 0.6; cursor: not-allowed; }
+=======
+>>>>>>> theirs
 
 input[type="file"] {
   background: #12162a;
@@ -243,7 +297,11 @@ input[type="file"] {
   padding: 6px;
 }
 
+<<<<<<< ours
 .hint, .status { color: var(--muted); font-size: .9rem; }
+>>>>>>> theirs
+=======
+.status, .hint { margin-top: 12px; color: var(--muted); font-size: .9rem; }
 >>>>>>> theirs
 
 .result-card {
@@ -253,6 +311,7 @@ input[type="file"] {
   border: 1px solid #36416b;
 }
 .label { margin: 0; color: var(--muted); }
+<<<<<<< ours
 <<<<<<< ours
 .prob {
   margin: 8px 0;
@@ -380,5 +439,19 @@ thead { background: #1f2742; position: sticky; top: 0; }
   .top-bar h1 { font-size: 1.45rem; }
   .grid-two { grid-template-columns: 1fr; }
   input[type="file"] { min-width: 220px; }
+}
+>>>>>>> theirs
+=======
+.prob { margin: 8px 0; font-size: 2.8rem; font-weight: 800; color: var(--danger); }
+.progress { width: 100%; height: 10px; background: #2a314f; border-radius: 999px; overflow: hidden; }
+.bar { height: 100%; width: 0; transition: width .35s ease; background: linear-gradient(90deg, #4ea3ff, #ff4d6d); }
+
+.verdict { font-size: 1.25rem; font-weight: 700; color: #ff7f95; }
+.notes { color: var(--muted); padding-left: 1.1rem; }
+.notes li { margin: 6px 0; }
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: 1fr; }
+  .top-bar h1 { font-size: 1.45rem; }
 }
 >>>>>>> theirs

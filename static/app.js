@@ -4,6 +4,7 @@ const predictBtn = document.getElementById('predictBtn');
 const clearBtn = document.getElementById('clearBtn');
 <<<<<<< ours
 <<<<<<< ours
+<<<<<<< ours
 =======
 const batchBtn = document.getElementById('batchBtn');
 const downloadBtn = document.getElementById('downloadBtn');
@@ -12,12 +13,17 @@ const csvFileEl = document.getElementById('csvFile');
 =======
 const batchBtn = document.getElementById('batchBtn');
 const downloadBtn = document.getElementById('downloadBtn');
+const csvFileEl = document.getElementById('csvFile');
+>>>>>>> theirs
+=======
+const batchBtn = document.getElementById('batchBtn');
 const csvFileEl = document.getElementById('csvFile');
 >>>>>>> theirs
 const statusText = document.getElementById('statusText');
 const probabilityEl = document.getElementById('probability');
 const verdictEl = document.getElementById('verdict');
 const barEl = document.getElementById('bar');
+<<<<<<< ours
 <<<<<<< ours
 <<<<<<< ours
 =======
@@ -31,6 +37,9 @@ let latestBatchResults = [];
 >>>>>>> theirs
 =======
 >>>>>>> theirs
+=======
+const batchSummaryEl = document.getElementById('batchSummary');
+>>>>>>> theirs
 
 function normalizedLength(value) {
   return value.replace(/\s+/g, '').length;
@@ -40,6 +49,7 @@ function updateLength() {
   seqLenEl.textContent = `${normalizedLength(sequenceEl.value)} aa`;
 }
 
+<<<<<<< ours
 <<<<<<< ours
 <<<<<<< ours
 sequenceEl.addEventListener('input', updateLength);
@@ -86,6 +96,9 @@ downloadBtn.addEventListener('click', downloadBatchCsv);
 >>>>>>> theirs
 =======
 >>>>>>> theirs
+=======
+sequenceEl.addEventListener('input', updateLength);
+>>>>>>> theirs
 
 clearBtn.addEventListener('click', () => {
   sequenceEl.value = '';
@@ -124,7 +137,11 @@ predictBtn.addEventListener('click', async () => {
     barEl.style.width = `${Math.round(prob * 100)}%`;
 <<<<<<< ours
 <<<<<<< ours
+<<<<<<< ours
     statusText.textContent = '预测完成。';
+=======
+    statusText.textContent = '单条预测完成。';
+>>>>>>> theirs
 =======
     statusText.textContent = '单条预测完成。';
 >>>>>>> theirs
@@ -140,7 +157,10 @@ predictBtn.addEventListener('click', async () => {
 
 <<<<<<< ours
 <<<<<<< ours
+<<<<<<< ours
 =======
+=======
+>>>>>>> theirs
 =======
 >>>>>>> theirs
 batchBtn.addEventListener('click', async () => {
@@ -166,9 +186,12 @@ batchBtn.addEventListener('click', async () => {
       throw new Error(data.error || '批量预测失败');
     }
 
+<<<<<<< ours
     latestBatchResults = data.results || [];
     renderBatchTable(latestBatchResults);
     downloadBtn.disabled = latestBatchResults.length === 0;
+=======
+>>>>>>> theirs
     batchSummaryEl.textContent = `批量结果：总计 ${data.total}，成功 ${data.success}，失败 ${data.failed}（识别列：${data.sequence_column}）`;
     statusText.textContent = '批量预测完成。';
   } catch (err) {
@@ -179,6 +202,9 @@ batchBtn.addEventListener('click', async () => {
 });
 
 <<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 =======
 >>>>>>> theirs

@@ -9,19 +9,29 @@
 <body>
   <div class="page-wrap">
     <header class="top-bar">
+<<<<<<< ours
       <h1>细胞毒性预测器 · Cytotoxicity GUI</h1>
 <<<<<<< ours
       <span class="badge">Dynamic Web Client</span>
+=======
+      <h1>细胞毒性预测器 · GUI示意</h1>
+      <span class="badge">ESM Student Model</span>
+>>>>>>> theirs
     </header>
 
     <main class="grid">
       <section class="panel">
+<<<<<<< ours
 <<<<<<< ours
         <h2>输入序列</h2>
 =======
         <h2>单条预测</h2>
 >>>>>>> theirs
         <textarea id="sequence" placeholder="例如: GIGAVLKVLTTGLPALIS\nWIKRKRQQ"></textarea>
+=======
+        <h2>输入序列</h2>
+        <textarea id="sequence" placeholder="例如: GIGAVLKVLTTGLPALIS&#10;WIKRKRQQ"></textarea>
+>>>>>>> theirs
 
         <div class="chips">
           <span>长度 <b id="seqLen">0 aa</b></span>
@@ -35,6 +45,7 @@
         </div>
 
 <<<<<<< ours
+<<<<<<< ours
 =======
         <h3>批量 CSV 预测</h3>
         <p class="hint">上传 CSV，包含一列 `Sequence`（或 `sequence` / `seq` / `peptide`）。</p>
@@ -42,6 +53,15 @@
           <input id="csvFile" type="file" accept=".csv" />
           <button id="batchBtn">上传并批量预测</button>
           <button id="downloadBtn" class="ghost" disabled>下载结果 CSV</button>
+        </div>
+
+>>>>>>> theirs
+=======
+        <h3>批量 CSV 上传入口</h3>
+        <p class="hint">只需上传 CSV（包含 Sequence/sequence/seq/peptide 列）后点击批量预测。</p>
+        <div class="actions">
+          <input id="csvFile" type="file" accept=".csv" />
+          <button id="batchBtn">上传并批量预测</button>
         </div>
 
 >>>>>>> theirs
@@ -67,6 +87,7 @@
 
         <p class="verdict" id="verdict">判定：等待输入</p>
 
+<<<<<<< ours
 <<<<<<< ours
         <ul class="notes">
           <li>输出形式：概率 + 二分类标签</li>
@@ -161,6 +182,15 @@
 =======
       </section>
     </div>
+>>>>>>> theirs
+=======
+        <ul class="notes">
+          <li>输出形式：概率 + 二分类标签</li>
+          <li>接口：前端动态调用 Flask，再代理到远程模型服务</li>
+          <li id="batchSummary">批量结果：暂无</li>
+        </ul>
+      </section>
+    </main>
 >>>>>>> theirs
   </div>
 
