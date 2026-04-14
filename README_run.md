@@ -154,3 +154,15 @@ python web_app.py
   "probability": 0.873
 }
 ```
+<<<<<<< ours
+=======
+
+### 5) 批量 CSV 上传预测
+
+在页面中可以直接上传 CSV 并批量预测。后端接口为：`POST /api/predict-batch`。
+
+- 文件字段名：`file`
+- 序列列名自动识别：`Sequence` / `sequence` / `seq` / `peptide`
+- 返回：每行的概率、判定、状态、错误信息（如有）
+- 页面支持结果预览（前 30 条）与结果 CSV 下载
+>>>>>>> theirs
