@@ -28,16 +28,15 @@ LOCAL_BASE_MODEL_DIR = os.getenv("LOCAL_BASE_MODEL_DIR", "facebook/esm2_t12_35M_
 REMOTE_PREDICT_URL = os.getenv("REMOTE_PREDICT_URL", "").strip()
 REMOTE_TIMEOUT = float(os.getenv("REMOTE_TIMEOUT", "20"))
 REMOTE_API_KEY = os.getenv("REMOTE_API_KEY", "").strip()
-<<<<<<< ours
 THRESHOLD = 0.59
 MAX_BATCH_ROWS = int(os.getenv("MAX_BATCH_ROWS", "500"))
 MAX_CSV_BYTES = int(os.getenv("MAX_CSV_BYTES", str(2 * 1024 * 1024)))
-=======
+
 
 _TOKENIZER: Any = None
 _MODEL: Any = None
 _DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
->>>>>>> theirs
+
 
 
 @app.get("/")
@@ -145,31 +144,28 @@ def predict_batch() -> Any:
                 "error": "",
             }
         )
-<<<<<<< ours
-=======
 
     sorted_results = sorted(results, key=_batch_sort_key)
->>>>>>> theirs
 
     return jsonify(
         {
             "source": source,
-<<<<<<< ours
+
             "total": len(results),
-=======
+
             "total": len(sorted_results),
->>>>>>> theirs
+
             "success": success_count,
             "failed": len(sorted_results) - success_count,
             "threshold": THRESHOLD,
             "sequence_column": seq_column,
             "unique_sequences": len(sequence_cache),
-<<<<<<< ours
+
             "results": results,
-=======
+
             "sorted_by": "status_ok_then_probability_desc_then_row_asc",
             "results": sorted_results,
->>>>>>> theirs
+
         }
     )
 
@@ -370,8 +366,7 @@ def _normalize_sequence(value: Any) -> str:
     return str(value).strip().upper()
 
 
-<<<<<<< ours
-=======
+
 def _batch_sort_key(item: dict[str, Any]) -> tuple[int, float, int]:
     status_rank = 0 if item.get("status") == "ok" else 1
     probability = item.get("probability")
@@ -380,7 +375,6 @@ def _batch_sort_key(item: dict[str, Any]) -> tuple[int, float, int]:
     return status_rank, -float(probability), int(item.get("row", 0))
 
 
->>>>>>> theirs
 def _is_number(value: Any) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool)
 
