@@ -131,7 +131,11 @@ batchBtn.addEventListener('click', async () => {
     renderBatchTable(latestBatchResults);
     downloadBtn.disabled = latestBatchResults.length === 0;
 
+<<<<<<< ours
     batchSummaryEl.textContent = `批量结果：总计 ${data.total}，成功 ${data.success}，失败 ${data.failed}（识别列：${data.sequence_column}）`;
+=======
+    batchSummaryEl.textContent = `批量结果：总计 ${data.total}，成功 ${data.success}，失败 ${data.failed}（识别列：${data.sequence_column}，按概率降序展示）`;
+>>>>>>> theirs
     statusText.textContent = '批量预测完成。';
   } catch (err) {
     statusText.textContent = `批量错误：${err.message}`;

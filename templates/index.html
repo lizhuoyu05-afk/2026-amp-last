@@ -16,7 +16,11 @@
     <main class="grid">
       <section class="panel">
         <h2>单条预测</h2>
+<<<<<<< ours
         <textarea id="sequence" placeholder="例如: GIGAVLKVLTTGLPALIS"></textarea>
+=======
+        <textarea id="sequence" placeholder="例如: GIGAVLKVLTTGLPALIS&#10;WIKRKRQQ"></textarea>
+>>>>>>> theirs
 
         <div class="chips">
           <span>长度 <b id="seqLen">0 aa</b></span>
@@ -40,10 +44,12 @@
         </div>
 
         <p class="status" id="statusText">
-          {% if remote_configured %}
-          远程服务已配置，可直接调用。
+          {% if infer_mode == "local" %}
+          当前为本地推理模式（LOCAL_CKPT_DIR={{ local_ckpt_dir }}）。
+          {% elif remote_configured %}
+          当前为远程推理模式，远程服务已配置。
           {% else %}
-          未配置远程服务，请设置 REMOTE_PREDICT_URL。
+          当前为远程推理模式，但未配置 REMOTE_PREDICT_URL。
           {% endif %}
         </p>
       </section>

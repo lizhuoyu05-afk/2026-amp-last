@@ -5,23 +5,49 @@ import io
 import os
 from typing import Any
 
-import requests
+import torch
 from flask import Flask, jsonify, render_template, request
+from transformers import AutoTokenizer
+
+from src.modeling import load_model_for_inference
 
 app = Flask(__name__)
 
 
+THRESHOLD = float(os.getenv("PREDICT_THRESHOLD", "0.59"))
+MAX_BATCH_ROWS = int(os.getenv("MAX_BATCH_ROWS", "500"))
+MAX_CSV_BYTES = int(os.getenv("MAX_CSV_BYTES", str(2 * 1024 * 1024)))
+MAX_SEQ_LEN = int(os.getenv("MAX_SEQ_LEN", "256"))
+
+# 默认走本地推理；如需切回远程可自行改为 remote。
+INFER_MODE = os.getenv("INFER_MODE", "local").strip().lower()
+LOCAL_CKPT_DIR = os.getenv("LOCAL_CKPT_DIR", "./runs/cytotox_student_35m/best").strip()
+LOCAL_BASE_MODEL_DIR = os.getenv("LOCAL_BASE_MODEL_DIR", "facebook/esm2_t12_35M_UR50D").strip()
+
+# 兼容旧配置（remote 模式）
 REMOTE_PREDICT_URL = os.getenv("REMOTE_PREDICT_URL", "").strip()
 REMOTE_TIMEOUT = float(os.getenv("REMOTE_TIMEOUT", "20"))
 REMOTE_API_KEY = os.getenv("REMOTE_API_KEY", "").strip()
+<<<<<<< ours
 THRESHOLD = 0.59
 MAX_BATCH_ROWS = int(os.getenv("MAX_BATCH_ROWS", "500"))
 MAX_CSV_BYTES = int(os.getenv("MAX_CSV_BYTES", str(2 * 1024 * 1024)))
+=======
+
+_TOKENIZER: Any = None
+_MODEL: Any = None
+_DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+>>>>>>> theirs
 
 
 @app.get("/")
 def index() -> str:
-    return render_template("index.html", remote_configured=bool(REMOTE_PREDICT_URL))
+    return render_template(
+        "index.html",
+        remote_configured=bool(REMOTE_PREDICT_URL),
+        infer_mode=INFER_MODE,
+        local_ckpt_dir=LOCAL_CKPT_DIR,
+    )
 
 
 @app.post("/api/predict")
@@ -119,17 +145,31 @@ def predict_batch() -> Any:
                 "error": "",
             }
         )
+<<<<<<< ours
+=======
+
+    sorted_results = sorted(results, key=_batch_sort_key)
+>>>>>>> theirs
 
     return jsonify(
         {
             "source": source,
+<<<<<<< ours
             "total": len(results),
+=======
+            "total": len(sorted_results),
+>>>>>>> theirs
             "success": success_count,
-            "failed": len(results) - success_count,
+            "failed": len(sorted_results) - success_count,
             "threshold": THRESHOLD,
             "sequence_column": seq_column,
             "unique_sequences": len(sequence_cache),
+<<<<<<< ours
             "results": results,
+=======
+            "sorted_by": "status_ok_then_probability_desc_then_row_asc",
+            "results": sorted_results,
+>>>>>>> theirs
         }
     )
 
@@ -173,10 +213,82 @@ def _read_csv_text_from_request() -> tuple[str | None, tuple[Any, int] | str]:
 
 
 def _predict_sequence(sequence: str) -> dict[str, Any]:
+    if INFER_MODE == "local":
+        return _predict_sequence_local(sequence)
+    return _predict_sequence_remote(sequence)
+
+
+def _predict_sequence_local(sequence: str) -> dict[str, Any]:
+    try:
+        tokenizer, model = _get_local_predictor()
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "error": f"本地模型加载失败: {exc}",
+            "status": 500,
+            "mode": "local",
+        }
+
+    try:
+        inputs = tokenizer(
+            [sequence],
+            padding=True,
+            truncation=True,
+            max_length=MAX_SEQ_LEN,
+            return_tensors="pt",
+        )
+        inputs = {k: v.to(_DEVICE) for k, v in inputs.items()}
+
+        with torch.no_grad():
+            logits = model(**inputs)["logits"]
+            prob = float(torch.sigmoid(logits).squeeze().detach().cpu().item())
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "error": f"本地推理失败: {exc}",
+            "status": 500,
+            "mode": "local",
+        }
+
+    probability = max(0.0, min(1.0, prob))
+    verdict = "高危 / Toxic" if probability >= THRESHOLD else "低危 / Non-toxic"
+    return {
+        "sequence": sequence,
+        "probability": probability,
+        "threshold": THRESHOLD,
+        "verdict": verdict,
+        "mode": "local",
+    }
+
+
+def _get_local_predictor() -> tuple[Any, Any]:
+    global _TOKENIZER, _MODEL
+    if _TOKENIZER is not None and _MODEL is not None:
+        return _TOKENIZER, _MODEL
+
+    ckpt_dir = os.path.abspath(LOCAL_CKPT_DIR)
+    if not os.path.isdir(ckpt_dir):
+        raise FileNotFoundError(
+            f"LOCAL_CKPT_DIR 不存在: {ckpt_dir}。请设置本地模型路径。"
+        )
+
+    _TOKENIZER = AutoTokenizer.from_pretrained(ckpt_dir)
+    _MODEL = load_model_for_inference(
+        ckpt_dir=ckpt_dir,
+        base_model_dir=LOCAL_BASE_MODEL_DIR or None,
+        merge_lora=True,
+    )
+    _MODEL.to(_DEVICE)
+    _MODEL.eval()
+    return _TOKENIZER, _MODEL
+
+
+def _predict_sequence_remote(sequence: str) -> dict[str, Any]:
+    import requests
+
     if not REMOTE_PREDICT_URL:
         return {
-            "error": "未配置远程服务地址。请设置环境变量 REMOTE_PREDICT_URL。",
+            "error": "未配置远程服务地址。请设置 REMOTE_PREDICT_URL，或将 INFER_MODE=local。",
             "status": 500,
+            "mode": "remote",
         }
 
     remote_payload = {"sequence": sequence}
@@ -194,15 +306,16 @@ def _predict_sequence(sequence: str) -> dict[str, Any]:
         response.raise_for_status()
         remote_data = response.json()
     except requests.RequestException as exc:
-        return {"error": f"远程服务连接失败: {exc}", "status": 502}
+        return {"error": f"远程服务连接失败: {exc}", "status": 502, "mode": "remote"}
     except ValueError:
-        return {"error": "远程服务返回了非 JSON 数据。", "status": 502}
+        return {"error": "远程服务返回了非 JSON 数据。", "status": 502, "mode": "remote"}
 
     probability = _extract_probability(remote_data)
     if probability is None:
         return {
             "error": "远程服务返回格式不符合预期，未找到 cytotoxicity 概率字段。",
             "status": 502,
+            "mode": "remote",
         }
 
     probability = max(0.0, min(1.0, float(probability)))
@@ -213,6 +326,7 @@ def _predict_sequence(sequence: str) -> dict[str, Any]:
         "threshold": THRESHOLD,
         "verdict": verdict,
         "remote_raw": remote_data,
+        "mode": "remote",
     }
 
 
@@ -256,6 +370,17 @@ def _normalize_sequence(value: Any) -> str:
     return str(value).strip().upper()
 
 
+<<<<<<< ours
+=======
+def _batch_sort_key(item: dict[str, Any]) -> tuple[int, float, int]:
+    status_rank = 0 if item.get("status") == "ok" else 1
+    probability = item.get("probability")
+    if probability is None:
+        probability = -1.0
+    return status_rank, -float(probability), int(item.get("row", 0))
+
+
+>>>>>>> theirs
 def _is_number(value: Any) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool)
 
