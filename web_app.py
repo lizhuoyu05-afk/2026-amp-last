@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import io
 import os
+from pathlib import Path
 from typing import Any
 
 import torch
@@ -15,28 +16,43 @@ app = Flask(__name__)
 
 
 THRESHOLD = float(os.getenv("PREDICT_THRESHOLD", "0.59"))
+<<<<<<< ours
 MAX_BATCH_ROWS = int(os.getenv("MAX_BATCH_ROWS", "500"))
 MAX_CSV_BYTES = int(os.getenv("MAX_CSV_BYTES", str(2 * 1024 * 1024)))
+=======
+MAX_BATCH_ROWS = int(os.getenv("MAX_BATCH_ROWS", "50000"))
+MAX_CSV_BYTES = int(os.getenv("MAX_CSV_BYTES", str(20 * 1024 * 1024)))
+>>>>>>> theirs
 MAX_SEQ_LEN = int(os.getenv("MAX_SEQ_LEN", "256"))
 
 # 默认走本地推理；如需切回远程可自行改为 remote。
 INFER_MODE = os.getenv("INFER_MODE", "local").strip().lower()
+<<<<<<< ours
 LOCAL_CKPT_DIR = os.getenv("LOCAL_CKPT_DIR", "./runs/cytotox_student_35m/best").strip()
+=======
+LOCAL_CKPT_DIR = os.getenv("LOCAL_CKPT_DIR", "").strip()
+>>>>>>> theirs
 LOCAL_BASE_MODEL_DIR = os.getenv("LOCAL_BASE_MODEL_DIR", "facebook/esm2_t12_35M_UR50D").strip()
 
 # 兼容旧配置（remote 模式）
 REMOTE_PREDICT_URL = os.getenv("REMOTE_PREDICT_URL", "").strip()
 REMOTE_TIMEOUT = float(os.getenv("REMOTE_TIMEOUT", "20"))
 REMOTE_API_KEY = os.getenv("REMOTE_API_KEY", "").strip()
+<<<<<<< ours
 THRESHOLD = 0.59
 MAX_BATCH_ROWS = int(os.getenv("MAX_BATCH_ROWS", "500"))
 MAX_CSV_BYTES = int(os.getenv("MAX_CSV_BYTES", str(2 * 1024 * 1024)))
 
+=======
+>>>>>>> theirs
 
 _TOKENIZER: Any = None
 _MODEL: Any = None
 _DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+<<<<<<< ours
 
+=======
+>>>>>>> theirs
 
 
 @app.get("/")
@@ -45,7 +61,11 @@ def index() -> str:
         "index.html",
         remote_configured=bool(REMOTE_PREDICT_URL),
         infer_mode=INFER_MODE,
+<<<<<<< ours
         local_ckpt_dir=LOCAL_CKPT_DIR,
+=======
+        local_ckpt_dir=_resolve_local_ckpt_dir(),
+>>>>>>> theirs
     )
 
 
@@ -96,6 +116,14 @@ def predict_batch() -> Any:
             }
         ), 400
 
+<<<<<<< ours
+=======
+    if INFER_MODE == "local":
+        preflight = _predict_sequence_local("ACDE")
+        if "error" in preflight:
+            return jsonify(preflight), preflight.get("status", 500)
+
+>>>>>>> theirs
     results: list[dict[str, Any]] = []
     success_count = 0
     sequence_cache: dict[str, dict[str, Any]] = {}
@@ -150,22 +178,31 @@ def predict_batch() -> Any:
     return jsonify(
         {
             "source": source,
+<<<<<<< ours
 
             "total": len(results),
 
             "total": len(sorted_results),
 
+=======
+            "total": len(sorted_results),
+>>>>>>> theirs
             "success": success_count,
             "failed": len(sorted_results) - success_count,
             "threshold": THRESHOLD,
             "sequence_column": seq_column,
             "unique_sequences": len(sequence_cache),
+<<<<<<< ours
 
             "results": results,
 
             "sorted_by": "status_ok_then_probability_desc_then_row_asc",
             "results": sorted_results,
 
+=======
+            "sorted_by": "status_ok_then_probability_desc_then_row_asc",
+            "results": sorted_results,
+>>>>>>> theirs
         }
     )
 
@@ -260,6 +297,7 @@ def _get_local_predictor() -> tuple[Any, Any]:
     if _TOKENIZER is not None and _MODEL is not None:
         return _TOKENIZER, _MODEL
 
+<<<<<<< ours
     ckpt_dir = os.path.abspath(LOCAL_CKPT_DIR)
     if not os.path.isdir(ckpt_dir):
         raise FileNotFoundError(
@@ -267,6 +305,21 @@ def _get_local_predictor() -> tuple[Any, Any]:
         )
 
     _TOKENIZER = AutoTokenizer.from_pretrained(ckpt_dir)
+=======
+    ckpt_dir = _resolve_local_ckpt_dir()
+    if not ckpt_dir:
+        raise FileNotFoundError(
+            "未找到可用本地模型目录。请设置 LOCAL_CKPT_DIR，或将模型放在 ./runs/**/best 下。"
+        )
+
+    try:
+        _TOKENIZER = AutoTokenizer.from_pretrained(ckpt_dir)
+    except Exception:  # noqa: BLE001
+        if not LOCAL_BASE_MODEL_DIR:
+            raise
+        _TOKENIZER = AutoTokenizer.from_pretrained(LOCAL_BASE_MODEL_DIR)
+
+>>>>>>> theirs
     _MODEL = load_model_for_inference(
         ckpt_dir=ckpt_dir,
         base_model_dir=LOCAL_BASE_MODEL_DIR or None,
@@ -277,6 +330,35 @@ def _get_local_predictor() -> tuple[Any, Any]:
     return _TOKENIZER, _MODEL
 
 
+<<<<<<< ours
+=======
+def _resolve_local_ckpt_dir() -> str:
+    if LOCAL_CKPT_DIR:
+        ckpt = os.path.abspath(LOCAL_CKPT_DIR)
+        if os.path.isdir(ckpt):
+            return ckpt
+
+    runs_dir = Path("./runs")
+    if not runs_dir.exists():
+        return ""
+
+    candidates: list[str] = []
+    for best_dir in runs_dir.glob("**/best"):
+        if not best_dir.is_dir():
+            continue
+        has_weight = (
+            (best_dir / "model.safetensors").is_file()
+            or (best_dir / "pytorch_model.bin").is_file()
+            or (best_dir / "adapter_config.json").is_file()
+            or (best_dir / "config.json").is_file()
+        )
+        if has_weight:
+            candidates.append(str(best_dir.resolve()))
+
+    return sorted(candidates)[0] if candidates else ""
+
+
+>>>>>>> theirs
 def _predict_sequence_remote(sequence: str) -> dict[str, Any]:
     import requests
 
@@ -366,7 +448,10 @@ def _normalize_sequence(value: Any) -> str:
     return str(value).strip().upper()
 
 
+<<<<<<< ours
 
+=======
+>>>>>>> theirs
 def _batch_sort_key(item: dict[str, Any]) -> tuple[int, float, int]:
     status_rank = 0 if item.get("status") == "ok" else 1
     probability = item.get("probability")

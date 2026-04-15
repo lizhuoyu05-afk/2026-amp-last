@@ -154,17 +154,6 @@ python web_app.py
   "probability": 0.873
 }
 ```
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 
 ### 5) 批量 CSV 上传预测
 
@@ -173,16 +162,4 @@ python web_app.py
 - 文件字段名：`file`
 - 序列列名自动识别：`Sequence` / `sequence` / `seq` / `peptide`
 - 返回：每行的概率、判定、状态、错误信息（如有）
-<<<<<<< ours
-<<<<<<< ours
 - 页面支持结果预览（前 30 条）与结果 CSV 下载
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
-- 页面提供 CSV 上传入口并返回批量统计结果
->>>>>>> theirs
-=======
-- 页面提供 CSV 上传入口并返回批量统计结果
->>>>>>> theirs

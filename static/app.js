@@ -132,7 +132,11 @@ batchBtn.addEventListener('click', async () => {
     downloadBtn.disabled = latestBatchResults.length === 0;
 
 <<<<<<< ours
+<<<<<<< ours
     batchSummaryEl.textContent = `批量结果：总计 ${data.total}，成功 ${data.success}，失败 ${data.failed}（识别列：${data.sequence_column}）`;
+=======
+    batchSummaryEl.textContent = `批量结果：总计 ${data.total}，成功 ${data.success}，失败 ${data.failed}（识别列：${data.sequence_column}，按概率降序展示）`;
+>>>>>>> theirs
 =======
     batchSummaryEl.textContent = `批量结果：总计 ${data.total}，成功 ${data.success}，失败 ${data.failed}（识别列：${data.sequence_column}，按概率降序展示）`;
 >>>>>>> theirs
